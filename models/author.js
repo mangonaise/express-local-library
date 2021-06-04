@@ -13,14 +13,20 @@ const AuthorSchema = new Schema(
 
 AuthorSchema
   .virtual('name')
-  .get(() => `${this.familyName}, ${this.firstName}`);
+  .get(function() {
+    return `${this.familyName}, ${this.firstName}`;
+  });
 
 AuthorSchema
   .virtual('lifespan')
-  .get(() => (this.dateOfDeath.getYear() - this.dateOfBirth.getYear()).toString());
+  .get(function() {
+    return (this.dateOfDeath.getYear() - this.dateOfBirth.getYear()).toString();
+  })
 
 AuthorSchema
   .virtual('url')
-  .get(() => `/catalog/author/${this._id}`);
+  .get(function() {
+    return `/catalog/author/${this._id}`;
+  });
 
 module.exports = mongoose.model('Author', AuthorSchema);

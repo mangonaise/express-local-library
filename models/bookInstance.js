@@ -13,6 +13,8 @@ const BookInstanceSchema = new Schema(
 
 BookInstanceSchema
   .virtual('url')
-  .get(() => `/catalog/bookInstance/${this._id}`);
+  .get(function() {
+    return `/catalog/bookInstance/${this._id}`;
+  });
 
 module.exports = mongoose.model('BookInstance', BookInstanceSchema);
