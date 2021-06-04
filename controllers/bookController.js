@@ -1,8 +1,15 @@
 const Book = require('../models/book');
 
 // Display list of all books.
-exports.bookList = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book list');
+exports.bookList = async (req, res, next) => {
+  try {
+    const list = await Book
+      .find({}, 'title author', { sort: { title: 1 } })
+      .populate('author');
+    res.render('bookList', { title: 'Book List', list });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // Display detail page for a specific book.
