@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Controller modules
+const catalogController = require('../controllers/catalogController');
 const bookController = require('../controllers/bookController');
 const authorController = require('../controllers/authorController');
 const genreController = require('../controllers/genreController');
@@ -9,9 +10,7 @@ const bookInstanceController = require('../controllers/bookInstanceController');
 
 // Catalog page route
 
-router.get('/', (req, res) => {
-  res.send('NOT IMPLEMENTED: Site Home Page');
-});
+router.get('/', catalogController.index);
 
 /// BOOK ROUTES ///
 
