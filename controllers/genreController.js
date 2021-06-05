@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const Genre = require('../models/genre');
+const Book = require('../models/book');
 
 // Display list of all Genres.
 exports.genreList = async (req, res, next) => {
@@ -11,8 +13,19 @@ exports.genreList = async (req, res, next) => {
 };
 
 // Display detail page for a specific Genre.
-exports.genreDetail = (req, res) => {
-  res.send('NOT IMPLEMENTED: Genre detail: ' + req.params.id);
+exports.genreDetail = (req, res, next) => {
+  Promise.all([
+    Genre.findById(req.params.id),
+    Book.find({ genre: req.params.id })
+  ]).then(([genre, books]) => {
+    res.render('genreDetail', { genre, books });
+  }).catch(err => {
+    if (err instanceof mongoose.Error.CastError) {
+      err = new Error('Genre not found.');
+      err.status = 404;
+    }
+    next(err);
+  });
 };
 
 // Display Genre create form on GET.
