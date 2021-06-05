@@ -1,3 +1,4 @@
+const { format } = require('date-fns');
 const mongoose = require('mongoose');
 const handlebars = require('hbs');
 const createError = require('http-errors');
@@ -51,5 +52,8 @@ handlebars.registerHelper('equal', function () {
   const args = Array.prototype.slice.call(arguments, 0, -1);
   return args.every(expression => args[0] === expression);
 });
+
+handlebars.registerHelper('format', date => format(new Date(date), 'MMM dd, yyyy'));
+handlebars.registerHelper('year', date => date ? new Date(date).getFullYear() : '');
 
 module.exports = app;
