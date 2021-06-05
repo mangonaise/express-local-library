@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const handlebars = require('hbs');
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -44,6 +45,11 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+handlebars.registerHelper('equal', function () {
+  const args = Array.prototype.slice.call(arguments, 0, -1);
+  return args.every(expression => args[0] === expression);
 });
 
 module.exports = app;

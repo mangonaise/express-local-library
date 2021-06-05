@@ -1,0 +1,17 @@
+<h1>{{title}}</h1>
+<ul>
+  {{#each list}}
+  <li>
+    <a href={{this.url}}>
+      {{this.book.title}} : {{this.imprint}}
+    </a>
+    {{#if (equal this.status 'available')}}
+    <span class="text-success">({{this.status}})</span>
+    {{else if (equal this.status 'maintenance')}}
+    <span class="text-danger">({{this.status}})</span>
+    {{else}}
+    <span class="text-warning">({{this.status}})</span>
+    {{/if}}
+  </li>
+  {{/each}}
+</ul>
