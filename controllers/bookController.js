@@ -4,7 +4,7 @@ const Book = require('../models/book');
 exports.bookList = async (req, res, next) => {
   try {
     const list = await Book
-      .find({}, 'title author', { sort: { title: 1 } })
+      .find({}, 'title author', { sort: { title: 'asc' } })
       .populate('author');
     res.render('bookList', { title: 'Book List', list });
   } catch (err) {
