@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const BookInstance = require('../models/bookInstance');
 
 // Display list of all BookInstances.
@@ -11,8 +12,19 @@ exports.bookInstanceList = async (req, res) => {
 };
 
 // Display detail page for a specific BookInstance.
-exports.bookInstanceDetail = (req, res) => {
-  res.send('NOT IMPLEMENTED: BookInstance detail: ' + req.params.id);
+exports.bookInstanceDetail = async (req, res, next) => {
+  try {
+    const bookInstance = await BookInstance
+      .findById(req.params.id)
+      .populate('book');
+    res.render('bookInstanceDetail', { bookInstance });
+  } catch (err) {
+    if (err instanceof mongoose.Error.CastError) {
+      err = new Error('Book instance not found.');
+      err.status = 404;
+    }
+    next(err);
+  }
 };
 
 // Display BookInstance create form on GET.

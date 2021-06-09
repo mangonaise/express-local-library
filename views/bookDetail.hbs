@@ -30,9 +30,13 @@
   <span class="text-danger">{{this.status}}</span>
   {{else}}
   <span class="text-warning">{{this.status}}</span>
-  <span> - due back on <strong>{{format this.due}}</strong></span>
   {{/if}}
 </p>
+{{#if (equal this.status 'loaned')}}
+<p>
+  <strong>Due back: </strong>{{format this.due}}
+</p>
+{{/if}}
 <p>
   <strong>Imprint: </strong>{{this.imprint}}
 </p>
