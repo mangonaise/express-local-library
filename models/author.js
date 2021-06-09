@@ -1,3 +1,4 @@
+const { format } = require('date-fns');
 const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
@@ -20,7 +21,11 @@ AuthorSchema
 AuthorSchema
   .virtual('lifespan')
   .get(function() {
-    return (this.dateOfDeath.getYear() - this.dateOfBirth.getYear()).toString();
+    if (this.dateOfBirth) {
+      return `${format(this.dateOfBirth, 'yyyy')}-${this.dateOfDeath ? format(this.dateOfDeath, 'yyyy') : ''}`;
+    } else {
+      return undefined;
+    }
   })
 
 AuthorSchema

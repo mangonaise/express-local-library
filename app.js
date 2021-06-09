@@ -54,6 +54,5 @@ handlebars.registerHelper('equal', function () {
 });
 
 handlebars.registerHelper('format', date => format(new Date(date), 'MMM dd, yyyy'));
-handlebars.registerHelper('year', date => date ? new Date(date).getFullYear() : '');
 
 module.exports = app;

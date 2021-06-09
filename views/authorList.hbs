@@ -3,8 +3,8 @@
   {{#each list}}
   <li>
     <a href={{this.url}}>{{this.name}}</a>
-    {{#if (year this.dateOfBirth)}}
-      ({{year this.dateOfBirth}}-{{year this.dateOfDeath}})
+    {{#if this.lifespan}}
+      ({{this.lifespan}})
     {{/if}}
   </li>
   {{/each}}
