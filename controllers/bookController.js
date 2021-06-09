@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const Book = require('../models/book');
+const BookInstance = require('../models/bookInstance');
 
 // Display list of all books.
 exports.bookList = async (req, res, next) => {
@@ -13,8 +15,21 @@ exports.bookList = async (req, res, next) => {
 };
 
 // Display detail page for a specific book.
-exports.bookDetail = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book detail: ' + req.params.id);
+exports.bookDetail = async (req, res, next) => {
+  try {
+    const book = await Book
+      .findById(req.params.id)
+      .populate('author genre');
+    const copies = await BookInstance
+      .find({ book: req.params.id })
+    res.render('bookDetail', { book, copies });
+  } catch (err) {
+    if (err instanceof mongoose.Error.CastError) {
+      err = new Error('Book not found.');
+      err.status = 404;
+    }
+    next(err);
+  }
 };
 
 // Display book create form on GET.
