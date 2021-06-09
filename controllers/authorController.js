@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const Author = require('../models/author');
+const Book = require('../models/book');
 
 // Display list of all Authors.
 exports.authorList = async (req, res, next) => {
@@ -11,8 +13,20 @@ exports.authorList = async (req, res, next) => {
 }
 
 // Display detail page for a specific Author.
-exports.authorDetail = (req, res) => {
-  res.send('NOT IMPLEMENTED: Author detail ' + req.params.id);
+exports.authorDetail = async (req, res, next) => {
+  try {
+    const author = await Author
+      .findById(req.params.id);
+    const books = await Book
+      .find({ author: req.params.id });
+    res.render('authorDetail', { author, books });
+  } catch (err) {
+    if (err instanceof mongoose.Error.CastError) {
+      err = new Error('Author not found.');
+      err.status = 404;
+    }
+    next(err);
+  }
 }
 
 // Display Author create form on GET

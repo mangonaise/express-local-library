@@ -1,0 +1,17 @@
+<h1>{{author.name}}</h1>
+{{#if (year author.dateOfBirth)}}
+<p>{{year author.dateOfBirth}}-{{year author.dateOfDeath}}</p>
+{{/if}}
+<h4>Books</h4>
+<div>
+  {{#if books}}
+  <dl>
+    {{#each books}}
+    <dt><a href={{this.url}}>{{this.title}}</a></dt>
+    <dd>{{this.summary}}</dd>
+    {{/each}}
+  </dl>
+  {{else}}
+  <p>This author has no books in the library.</p>
+  {{/if}}
+</div>
