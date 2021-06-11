@@ -1,3 +1,4 @@
+const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const Author = require('../models/author');
 const Book = require('../models/book');
@@ -31,13 +32,38 @@ exports.authorDetail = async (req, res, next) => {
 
 // Display Author create form on GET
 exports.authorCreateGET = (req, res) => {
-  res.send('NOT IMPLEMENTED: Author create GET');
+  res.render('authorForm', { title: 'Create Author ' });
 }
 
 // Handle Author create on POST.
-exports.authorCreatePOST = (req, res) => {
-  res.send('NOT IMPLEMENTED: Author create POST');
-};
+exports.authorCreatePOST = [
+  body('firstName').trim().isLength({ min: 1 }).escape().withMessage('First name required')
+    .isAlphanumeric().withMessage('First name has non-alphanumeric characters'),
+  body('familyName').trim().isLength({ min: 1 }).escape().withMessage('Family name required')
+    .isAlphanumeric().withMessage('Family name has non-alphanumeric characters'),
+  body('dateOfBirth').optional({ checkFalsy: true }).isISO8601().toDate(),
+  body('dateOfDeath').optional({ checkFalsy: true }).isISO8601().toDate(),
+  async (req, res, next) => {
+    try {
+      const validationErrors = validationResult(req);
+      if (!validationErrors.isEmpty()) {
+        res.send(req.body.dateOfBirth);
+        res.render('authorForm', { title: 'Create Author', author: req.body, errors: validationErrors.mapped() });
+      } else {
+        const author = new Author({
+          firstName: req.body.firstName,
+          familyName: req.body.familyName,
+          dateOfBirth: req.body.dateOfBirth,
+          dateOfDeath: req.body.dateOfDeath
+        });
+        await author.save();
+        res.redirect(author.url);
+      }
+    } catch (err) {
+      next(err);
+    }
+  }
+];
 
 // Display Author delete form on GET.
 exports.authorDeleteGET = (req, res) => {

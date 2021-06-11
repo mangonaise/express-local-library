@@ -1,0 +1,53 @@
+<h1>{{title}}</h1>
+
+<form action="" method="POST">
+  <div class="form-group">
+    <label for="firstName">First name:</label>
+    <input 
+      type="text" 
+      id="firstName" 
+      name="firstName" 
+      class={{#if errors.firstName}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
+      value={{#if author}}{{author.firstName}}{{else}}""{{/if}}>
+    {{#if errors.firstName}}
+      <div class="invalid-feedback">{{errors.firstName.msg}}</div>
+    {{/if}}
+
+    <label for="familyName">Family name:</label>
+    <input 
+      type="text" 
+      id="familyName" 
+      name="familyName" 
+      class={{#if errors.familyName}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
+      value={{#if author}}{{author.familyName}}{{else}}""{{/if}}>
+    {{#if errors.familyName}}
+      <div class="invalid-feedback">{{errors.familyName.msg}}</div>
+    {{/if}}
+
+    <label for="dateOfBirth">Date of birth:</label>
+    <input 
+      type="date" 
+      id="dateOfBirth" 
+      name="dateOfBirth"
+      placeholder="mm/dd/yyyy"
+      class={{#if errors.dateOfBirth}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
+      value={{#if author}}{{author.dateOfBirth}}{{else}}""{{/if}}>
+    {{#if errors.dateOfBirth}}
+      <div class="invalid-feedback">{{errors.dateOfBirth.msg}}</div>
+    {{/if}}
+
+    <label for="dateOfDeath">Date of death:</label>
+    <input 
+      type="date" 
+      id="dateOfDeath" 
+      name="dateOfDeath" 
+      placeholder="mm/dd/yyyy"
+      class={{#if errors.dateOfDeath}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
+      value={{#if author}}{{author.dateOfDeath}}{{else}}""{{/if}}>
+    {{#if errors.dateOfDeath}}
+      <div class="invalid-feedback">{{errors.dateOfDeath.msg}}</div>
+    {{/if}}
+
+    <input type="submit" value="Create" class="btn btn-primary">
+  </div>
+</form>
