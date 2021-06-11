@@ -1,0 +1,19 @@
+<h1>{{title}}</h1>
+
+<form action="" method="POST">
+  <div class="form-group">
+    <label for="name">Genre name:</label>
+    <input 
+      type="text" 
+      id="name" 
+      name="name" 
+      class={{#if errors.name}}"form-control is-invalid"{{else}}"form-control"{{/if}}
+      placeholder="Fantasy, Poetry, etc." 
+      value={{#if genre}}{{genre.name}}{{else}}""{{/if}}>
+    {{#if errors.name}}
+    <div class="invalid-feedback">{{errors.name.msg}}</div>
+    {{/if}}
+
+    <input type="submit" value="Create" class="btn btn-primary">
+  </div>
+</form>

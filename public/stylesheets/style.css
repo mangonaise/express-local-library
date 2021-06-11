@@ -12,3 +12,13 @@ a {
   padding: 0;
   list-style: none;
 }
+
+.form-group label {
+  font-family: 'Lucida Grande', Helvetica,  Arial, sans-serif;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+}
+
+.form-group input[type="submit"] {
+  margin-top: 1rem;
+}
