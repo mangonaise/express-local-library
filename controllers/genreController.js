@@ -14,19 +14,20 @@ exports.genreList = async (req, res, next) => {
 };
 
 // Display detail page for a specific Genre.
-exports.genreDetail = (req, res, next) => {
-  Promise.all([
-    Genre.findById(req.params.id),
-    Book.find({ genre: req.params.id })
-  ]).then(([genre, books]) => {
+exports.genreDetail = async (req, res, next) => {
+  try {
+    const [genre, books] = await Promise.all([
+      Genre.findById(req.params.id),
+      Book.find({ genre: req.params.id })
+    ]);
     res.render('genreDetail', { genre, books });
-  }).catch(err => {
+  } catch (err) {
     if (err instanceof mongoose.Error.CastError) {
       err = new Error('Genre not found.');
       err.status = 404;
     }
     next(err);
-  });
+  }
 };
 
 // Display Genre create form on GET.
