@@ -1,0 +1,55 @@
+<h1>{{title}}</h1>
+
+<form action="" method="POST">
+  <div class="form-group">
+    <label for="book">Book:</label>
+    <select name="book" id="book" class="form-control">
+      {{#each books}}
+        <option value={{this._id}} {{#if ../bookInstance}}{{#if (equal ../bookInstance.book this._id)}}selected{{/if}}{{/if}}>
+          {{this.title}}
+        </option>
+      {{/each}}
+    </select>
+    {{#if errors.book}}
+    <div class="invalid-feedback">{{errors.book.msg}}</div>
+    {{/if}}
+
+    <label for="imprint">Imprint:</label>
+    <input 
+      type="text" 
+      id="imprint" 
+      name="imprint"
+      placeholder="Imprint"
+      class={{#if errors.imprint}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
+      value={{#if bookInstance}}{{bookInstance.imprint}}{{else}}""{{/if}}>
+    {{#if errors.imprint}}
+    <div class="invalid-feedback">{{errors.imprint.msg}}</div>
+    {{/if}}
+
+    <label for="status">Status:</label>
+    <select name="status" id="status" class="form-control">
+      {{#each statuses}}
+      <option value={{this}} {{#if ../bookInstance}}{{#if (equal ../bookInstance.status this)}}selected{{/if}}{{/if}}>
+        {{this}}
+      </option>
+      {{/each}}
+    </select>
+    {{#if errors.status}}
+    <div class="invalid-feedback">{{errors.status.msg}}</div>
+    {{/if}}
+
+    <label for="dateOfBirth">Due date (if applicable):</label>
+    <input 
+      type="date" 
+      id="dateOfBirth" 
+      name="dateOfBirth"
+      placeholder="mm/dd/yyyy"
+      class={{#if errors.dateOfBirth}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
+      value={{#if author}}{{author.dateOfBirth}}{{else}}""{{/if}}>
+    {{#if errors.dateOfBirth}}
+      <div class="invalid-feedback">{{errors.dateOfBirth.msg}}</div>
+    {{/if}}
+
+    <input type="submit" value="Create" class="btn btn-primary">
+  </div>
+</form>

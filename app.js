@@ -50,9 +50,8 @@ app.use(function (err, req, res, next) {
 
 handlebars.registerHelper('equal', function () {
   const args = Array.prototype.slice.call(arguments, 0, -1);
-  return args.every(expression => args[0] === expression);
+  return args.every(expression => args[0].toString() === expression.toString());
 });
-
 handlebars.registerHelper('format', date => format(new Date(date), 'MMM dd, yyyy'));
 handlebars.registerHelper('concat', (...args) => args.slice(0, -1).join(''));
 
