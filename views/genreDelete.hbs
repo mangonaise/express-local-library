@@ -1,0 +1,14 @@
+<h1>{{title}}</h1>
+{{#if books}}
+<p><strong>This genre cannot be deleted as there are books associated with it.</strong></p>
+<ul>
+  {{#each books}}
+  <li><a href={{this.url}}>{{this.title}}</a></li>
+  {{/each}}
+</ul>
+{{else}}
+<p>Are you sure you want to delete this genre?</p>
+<form action="" method="POST">
+  <button type="submit" class="btn btn-primary">Delete</button>
+</form>
+{{/if}}
