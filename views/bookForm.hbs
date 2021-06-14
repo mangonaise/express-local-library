@@ -1,0 +1,63 @@
+<h1>{{title}}</h1>
+
+<form action="" method="POST">
+  <div class="form-group">
+    <label for="title">Title:</label>
+    <input 
+      type="text" 
+      id="title" 
+      name="title"
+      placeholder="Name of book"
+      class={{#if errors.title}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
+      value={{#if book}}{{book.title}}{{else}}""{{/if}}>
+    {{#if errors.title}}
+    <div class="invalid-feedback">{{errors.title.msg}}</div>
+    {{/if}}
+
+    <label for="author">Author:</label>
+    <select name="author" id="author" class="form-control">
+      {{#each authors}}
+        <option value={{this._id}}>{{this.name}}</option>
+      {{/each}}
+    </select>
+    {{#if errors.author}}
+    <div class="invalid-feedback">{{errors.author.msg}}</div>
+    {{/if}}
+
+    <label for="summary">Summary:</label>
+    <input 
+      type="text" 
+      id="summary" 
+      name="summary"
+      placeholder="Summary"
+      class={{#if errors.summary}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
+      value={{#if book}}{{book.summary}}{{else}}""{{/if}}>
+    {{#if errors.summary}}
+    <div class="invalid-feedback">{{errors.summary.msg}}</div>
+    {{/if}}
+
+    <label for="summary">ISBN:</label>
+    <input 
+      type="text" 
+      id="isbn" 
+      name="isbn"
+      placeholder="ISBN-13"
+      class={{#if errors.isbn}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
+      value={{#if book}}{{book.isbn}}{{else}}""{{/if}}>
+    {{#if errors.isbn}}
+    <div class="invalid-feedback">{{errors.isbn.msg}}</div>
+    {{/if}}
+
+    <label>Genre:</label>
+    <div>
+      {{#each genres}}
+      <div class="d-inline" style="padding-right: 10px">
+        <input id={{this._id}} type="checkbox" name="genre" value={{this._id}} class="checkbox-input" {{#if this.checked}}checked{{/if}}>
+        <label for={{this._id}}>{{this.name}}</label>
+      </div>
+      {{/each}}
+    </div>
+
+    <input type="submit" value="Create" class="btn btn-primary">
+  </div>
+</form>

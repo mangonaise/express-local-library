@@ -1,6 +1,9 @@
+const { body, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const Book = require('../models/book');
 const BookInstance = require('../models/bookInstance');
+const Author = require('../models/author');
+const Genre = require('../models/genre');
 
 // Display list of all books.
 exports.bookList = async (req, res, next) => {
@@ -33,14 +36,61 @@ exports.bookDetail = async (req, res, next) => {
 };
 
 // Display book create form on GET.
-exports.bookCreateGET = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book create GET');
+exports.bookCreateGET = async (req, res, next) => {
+  try {
+    const [authors, genres] = await getAuthorsAndGenres();
+    res.render('bookForm', { title: 'Create Book', authors, genres });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // Handle book create on POST.
-exports.bookCreatePOST = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book create POST');
-};
+exports.bookCreatePOST = [
+  (req, res, next) => {
+    if (!(req.body.genre instanceof Array)) {
+      if (typeof req.body.genre === 'undefined') {
+        req.body.genre = []
+      } else {
+        req.body.genre = new Array(req.body.genre);
+      }
+    }
+    next();
+  },
+
+  body('title', 'Title required').trim().isLength({ min: 1 }).escape(),
+  body('author', 'Author required').trim().isLength({ min: 1 }).escape(),
+  body('summary', 'Summary required').trim().isLength({ min: 1 }).escape(),
+  body('isbn', 'ISBN required').trim().isLength({ min: 1 }).escape(),
+  body('genre.*').escape(),
+
+  async (req, res, next) => {
+    try {
+      const validationErrors = validationResult(req);
+      const book = new Book({
+        title: req.body.title,
+        author: req.body.author,
+        summary: req.body.summary,
+        isbn: req.body.isbn,
+        genre: req.body.genre
+      });
+      if (!validationErrors.isEmpty()) {
+        const [authors, genres] = await getAuthorsAndGenres();
+        for (let i = 0; i < genres.length; i++) {
+          if (book.genre.indexOf(genres[i]._id) > -1) {
+            genres[i].checked = 'true';
+          }
+        }
+        res.render('bookForm', { title: 'Create Book', authors, genres, book, errors: validationErrors.mapped() });
+      } else {
+        await book.save();
+        res.redirect(book.url);
+      }
+    } catch (err) {
+      next(err);
+    }
+  }
+];
 
 // Display book delete form on GET.
 exports.bookDeleteGET = (req, res) => {
@@ -61,3 +111,12 @@ exports.bookUpdateGET = (req, res) => {
 exports.bookUpdatePOST = (req, res) => {
   res.send('NOT IMPLEMENTED: Book update POST');
 };
+
+async function getAuthorsAndGenres() {
+  const [authors, genres] = await Promise.all([
+    Author.find(),
+    Genre.find()
+  ]);
+  authors.sort((a, b) => a.familyName.toUpperCase() < b.familyName.toUpperCase() ? -1 : 1);
+  return [authors, genres];
+}
