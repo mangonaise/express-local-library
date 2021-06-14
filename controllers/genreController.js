@@ -66,7 +66,7 @@ exports.genreDeleteGET = async (req, res, next) => {
       Genre.findById(req.params.id),
       Book.find({ genre: req.params.id })
     ]);
-    res.render('genreDelete', { title: `Delete genre: ${genre.name}`, genre, books });
+    res.render('genreDelete', { title: `Delete Genre: ${genre.name}`, genre, books });
   } catch (err) {
     next(err);
   }
