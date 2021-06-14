@@ -47,7 +47,6 @@ exports.authorCreatePOST = [
     try {
       const validationErrors = validationResult(req);
       if (!validationErrors.isEmpty()) {
-        res.send(req.body.dateOfBirth);
         res.render('authorForm', { title: 'Create Author', author: req.body, errors: validationErrors.mapped() });
       } else {
         const author = new Author({
@@ -66,13 +65,36 @@ exports.authorCreatePOST = [
 ];
 
 // Display Author delete form on GET.
-exports.authorDeleteGET = (req, res) => {
-  res.send('NOT IMPLEMENTED: Author delete GET');
+exports.authorDeleteGET = async (req, res, next) => {
+  try {
+    const [author, books] = await Promise.all([
+      Author.findById(req.params.id),
+      Book.find({ author: req.params.id })
+    ]);
+    res.render('authorDelete', { title: `Delete Author: ${author.name}`, author, books });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // Handle Author delete on POST.
-exports.authorDeletePOST = (req, res) => {
-  res.send('NOT IMPLEMENTED: Author delete POST');
+exports.authorDeletePOST = async (req, res, next) => {
+  try {
+    const [author, books] = await Promise.all([
+      Author.findById(req.params.id),
+      Book.find({ author: req.params.id })
+    ]);
+
+    if (books.length > 0) {
+      res.render('authorDelete', { title: `Delete Author: ${author.name}`, author, books });
+    } else {
+      await Author.findByIdAndDelete(author._id);
+      res.redirect('/catalog/authors');
+    }
+    res.render('authorDelete', { title: `Delete Author: ${author.name}`, author, books });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // Display Author update form on GET.
