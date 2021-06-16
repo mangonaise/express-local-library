@@ -9,7 +9,7 @@
       name="title"
       placeholder="Name of book"
       class={{#if errors.title}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
-      value={{#if book}}{{book.title}}{{else}}""{{/if}}>
+      value={{#if book}}"{{book.title}}"{{else}}""{{/if}}>
     {{#if errors.title}}
     <div class="invalid-feedback">{{errors.title.msg}}</div>
     {{/if}}
@@ -17,7 +17,9 @@
     <label for="author">Author:</label>
     <select name="author" id="author" class="form-control">
       {{#each authors}}
-        <option value={{this._id}}>{{this.name}}</option>
+        <option value={{this._id}} {{#if ../book}}{{#if (equal ../book.author._id this._id)}}selected{{/if}}{{/if}}>
+          {{this.name}}
+        </option>
       {{/each}}
     </select>
     {{#if errors.author}}
@@ -31,7 +33,7 @@
       name="summary"
       placeholder="Summary"
       class={{#if errors.summary}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
-      value={{#if book}}{{book.summary}}{{else}}""{{/if}}>
+      value={{#if book}}"{{book.summary}}"{{else}}""{{/if}}>
     {{#if errors.summary}}
     <div class="invalid-feedback">{{errors.summary.msg}}</div>
     {{/if}}
@@ -43,7 +45,7 @@
       name="isbn"
       placeholder="ISBN-13"
       class={{#if errors.isbn}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
-      value={{#if book}}{{book.isbn}}{{else}}""{{/if}}>
+      value={{#if book}}"{{book.isbn}}"{{else}}""{{/if}}>
     {{#if errors.isbn}}
     <div class="invalid-feedback">{{errors.isbn.msg}}</div>
     {{/if}}
@@ -58,6 +60,6 @@
       {{/each}}
     </div>
 
-    <input type="submit" value="Create" class="btn btn-primary">
+    <input type="submit" value="Submit" class="btn btn-primary">
   </div>
 </form>

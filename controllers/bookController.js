@@ -5,6 +5,14 @@ const BookInstance = require('../models/bookInstance');
 const Author = require('../models/author');
 const Genre = require('../models/genre');
 
+const bookValidation = [
+  body('title', 'Title required').trim().isLength({ min: 1 }).escape(),
+  body('author', 'Author required').trim().isLength({ min: 1 }).escape(),
+  body('summary', 'Summary required').trim().isLength({ min: 1 }).escape(),
+  body('isbn', 'ISBN required').trim().isLength({ min: 1 }).escape(),
+  body('genre.*').escape(),
+]
+
 // Display list of all books.
 exports.bookList = async (req, res, next) => {
   try {
@@ -47,49 +55,9 @@ exports.bookCreateGET = async (req, res, next) => {
 
 // Handle book create on POST.
 exports.bookCreatePOST = [
-  (req, res, next) => {
-    if (!(req.body.genre instanceof Array)) {
-      if (typeof req.body.genre === 'undefined') {
-        req.body.genre = []
-      } else {
-        req.body.genre = new Array(req.body.genre);
-      }
-    }
-    next();
-  },
-
-  body('title', 'Title required').trim().isLength({ min: 1 }).escape(),
-  body('author', 'Author required').trim().isLength({ min: 1 }).escape(),
-  body('summary', 'Summary required').trim().isLength({ min: 1 }).escape(),
-  body('isbn', 'ISBN required').trim().isLength({ min: 1 }).escape(),
-  body('genre.*').escape(),
-
-  async (req, res, next) => {
-    try {
-      const validationErrors = validationResult(req);
-      const book = new Book({
-        title: req.body.title,
-        author: req.body.author,
-        summary: req.body.summary,
-        isbn: req.body.isbn,
-        genre: req.body.genre
-      });
-      if (!validationErrors.isEmpty()) {
-        const [authors, genres] = await getAuthorsAndGenres();
-        for (let i = 0; i < genres.length; i++) {
-          if (book.genre.indexOf(genres[i]._id) > -1) {
-            genres[i].checked = 'true';
-          }
-        }
-        res.render('bookForm', { title: 'Create Book', authors, genres, book, errors: validationErrors.mapped() });
-      } else {
-        await book.save();
-        res.redirect(book.url);
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
+  createGenreArray,
+  ...bookValidation,
+  createOrUpdateBook
 ];
 
 // Display book delete form on GET.
@@ -125,14 +93,26 @@ exports.bookDeletePOST = async (req, res, next) => {
 };
 
 // Display book update form on GET.
-exports.bookUpdateGET = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book update GET');
+exports.bookUpdateGET = async (req, res, next) => {
+  try {
+    const [book, [authors, genres]] = await Promise.all([
+      Book.findById(req.params.id).populate('author').populate('genre'),
+      getAuthorsAndGenres()
+    ]);
+    const bookGenreIds = book.genre.map(genre => genre._id);
+    genres.forEach(genre => { if (bookGenreIds.includes(genre._id)) genre.checked = 'true' });
+    res.render('bookForm', { title: 'Update Book', book, authors, genres });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // Handle book update on POST.
-exports.bookUpdatePOST = (req, res) => {
-  res.send('NOT IMPLEMENTED: Book update POST');
-};
+exports.bookUpdatePOST = [
+  createGenreArray,
+  ...bookValidation,
+  createOrUpdateBook
+];
 
 async function getAuthorsAndGenres() {
   const [authors, genres] = await Promise.all([
@@ -141,4 +121,46 @@ async function getAuthorsAndGenres() {
   ]);
   authors.sort((a, b) => a.familyName.toUpperCase() < b.familyName.toUpperCase() ? -1 : 1);
   return [authors, genres];
+}
+
+async function createOrUpdateBook(req, res, next) {
+  try {
+    const validationErrors = validationResult(req);
+    const bookProperties = {
+      title: req.body.title,
+      author: req.body.author,
+      summary: req.body.summary,
+      isbn: req.body.isbn,
+      genre: req.body.genre
+    }
+    if (req.params.id) {
+      bookProperties._id = req.params.id;
+    }
+    const book = new Book(bookProperties);
+    if (!validationErrors.isEmpty()) {
+      const [authors, genres] = await getAuthorsAndGenres();
+      genres.forEach(genre => { if (book.genre.includes(genre._id)) genre.checked = 'true' });
+      res.render('bookForm', { title: 'Create Book', authors, genres, book, errors: validationErrors.mapped() });
+    } else {
+      if (req.params.id) {
+        await Book.findByIdAndUpdate(req.params.id, book);
+      } else {
+        await book.save();
+      }
+      res.redirect(book.url);
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
+function createGenreArray(req, res, next) {
+  if (!(req.body.genre instanceof Array)) {
+    if (typeof req.body.genre === 'undefined') {
+      req.body.genre = []
+    } else {
+      req.body.genre = new Array(req.body.genre);
+    }
+  }
+  next();
 }
