@@ -6,6 +6,8 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const compression = require('compression');
+const helmet = require('helmet');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -13,7 +15,8 @@ const catalogRouter = require('./routes/catalog');
 
 const app = express();
 
-const mongoDbUrl = 'mongodb+srv://liam:mongodb@cluster0.z86mb.mongodb.net/local_library?retryWrites=true&w=majority';
+const devDbUrl = 'mongodb+srv://liam:mongodb@cluster0.z86mb.mongodb.net/local_library?retryWrites=true&w=majority';
+const mongoDbUrl = process.env.MONGODB_URI || devDbUrl;
 mongoose.connect(mongoDbUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -27,6 +30,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(compression());
+app.use(helmet());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
