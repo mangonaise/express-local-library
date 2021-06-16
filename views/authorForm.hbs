@@ -8,7 +8,7 @@
       id="firstName" 
       name="firstName" 
       class={{#if errors.firstName}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
-      value={{#if author}}{{author.firstName}}{{else}}""{{/if}}>
+      value={{#if author}}"{{author.firstName}}"{{else}}""{{/if}}>
     {{#if errors.firstName}}
       <div class="invalid-feedback">{{errors.firstName.msg}}</div>
     {{/if}}
@@ -19,7 +19,7 @@
       id="familyName" 
       name="familyName" 
       class={{#if errors.familyName}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
-      value={{#if author}}{{author.familyName}}{{else}}""{{/if}}>
+      value={{#if author}}"{{author.familyName}}"{{else}}""{{/if}}>
     {{#if errors.familyName}}
       <div class="invalid-feedback">{{errors.familyName.msg}}</div>
     {{/if}}
@@ -31,7 +31,7 @@
       name="dateOfBirth"
       placeholder="mm/dd/yyyy"
       class={{#if errors.dateOfBirth}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
-      value={{#if author}}{{author.dateOfBirth}}{{else}}""{{/if}}>
+      value={{#if author}}{{formatymd author.dateOfBirth}}{{else}}""{{/if}}>
     {{#if errors.dateOfBirth}}
       <div class="invalid-feedback">{{errors.dateOfBirth.msg}}</div>
     {{/if}}
@@ -43,11 +43,11 @@
       name="dateOfDeath" 
       placeholder="mm/dd/yyyy"
       class={{#if errors.dateOfDeath}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
-      value={{#if author}}{{author.dateOfDeath}}{{else}}""{{/if}}>
+      value={{#if author}}{{formatymd author.dateOfDeath}}{{else}}""{{/if}}>
     {{#if errors.dateOfDeath}}
       <div class="invalid-feedback">{{errors.dateOfDeath.msg}}</div>
     {{/if}}
 
-    <input type="submit" value="Create" class="btn btn-primary">
+    <input type="submit" value="Submit" class="btn btn-primary">
   </div>
 </form>

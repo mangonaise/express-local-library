@@ -3,6 +3,15 @@ const mongoose = require('mongoose');
 const Author = require('../models/author');
 const Book = require('../models/book');
 
+const authorValidation = [
+  body('firstName').trim().isLength({ min: 1 }).escape().withMessage('First name required')
+    .isAlphanumeric().withMessage('First name has non-alphanumeric characters'),
+  body('familyName').trim().isLength({ min: 1 }).escape().withMessage('Family name required')
+    .isAlphanumeric().withMessage('Family name has non-alphanumeric characters'),
+  body('dateOfBirth').optional({ checkFalsy: true }).isISO8601().toDate(),
+  body('dateOfDeath').optional({ checkFalsy: true }).isISO8601().toDate()
+];
+
 // Display list of all Authors.
 exports.authorList = async (req, res, next) => {
   try {
@@ -32,36 +41,13 @@ exports.authorDetail = async (req, res, next) => {
 
 // Display Author create form on GET
 exports.authorCreateGET = (req, res) => {
-  res.render('authorForm', { title: 'Create Author ' });
+  res.render('authorForm', { title: 'Create Author' });
 }
 
 // Handle Author create on POST.
 exports.authorCreatePOST = [
-  body('firstName').trim().isLength({ min: 1 }).escape().withMessage('First name required')
-    .isAlphanumeric().withMessage('First name has non-alphanumeric characters'),
-  body('familyName').trim().isLength({ min: 1 }).escape().withMessage('Family name required')
-    .isAlphanumeric().withMessage('Family name has non-alphanumeric characters'),
-  body('dateOfBirth').optional({ checkFalsy: true }).isISO8601().toDate(),
-  body('dateOfDeath').optional({ checkFalsy: true }).isISO8601().toDate(),
-  async (req, res, next) => {
-    try {
-      const validationErrors = validationResult(req);
-      if (!validationErrors.isEmpty()) {
-        res.render('authorForm', { title: 'Create Author', author: req.body, errors: validationErrors.mapped() });
-      } else {
-        const author = new Author({
-          firstName: req.body.firstName,
-          familyName: req.body.familyName,
-          dateOfBirth: req.body.dateOfBirth,
-          dateOfDeath: req.body.dateOfDeath
-        });
-        await author.save();
-        res.redirect(author.url);
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
+  ...authorValidation,
+  createOrUpdateAuthor
 ];
 
 // Display Author delete form on GET.
@@ -98,11 +84,46 @@ exports.authorDeletePOST = async (req, res, next) => {
 };
 
 // Display Author update form on GET.
-exports.authorUpdateGET = (req, res) => {
-  res.send('NOT IMPLEMENTED: Author update GET');
+exports.authorUpdateGET = async (req, res, next) => {
+  try {
+    const author = await Author.findById(req.params.id);
+    res.render('authorForm', { title: 'Update Author', author });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // Handle Author update on POST.
-exports.authorUpdatePOST = (req, res) => {
-  res.send('NOT IMPLEMENTED: Author update POST');
-};
+exports.authorUpdatePOST = [
+  ...authorValidation,
+  createOrUpdateAuthor
+];
+
+async function createOrUpdateAuthor(req, res, next) {
+  try {
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      res.render('authorForm', { title: 'Create Author', author: req.body, errors: validationErrors.mapped() });
+    } else {
+      const authorProperties = {
+        firstName: req.body.firstName,
+        familyName: req.body.familyName,
+        dateOfBirth: req.body.dateOfBirth,
+        dateOfDeath: req.body.dateOfDeath
+      }
+      if (req.params.id) {
+        authorProperties._id = req.params.id;
+      }
+      const author = new Author(authorProperties);
+      
+      if (req.params.id) {
+        await Author.findByIdAndUpdate(req.params.id, author);
+      } else {
+        await author.save();
+      }
+      res.redirect(author.url);
+    }
+  } catch (err) {
+    next(err);
+  }
+}
