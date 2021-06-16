@@ -9,7 +9,7 @@
       name="name" 
       class={{#if errors.name}}"form-control is-invalid"{{else}}"form-control"{{/if}}
       placeholder="Fantasy, Poetry, etc." 
-      value={{#if genre}}{{genre.name}}{{else}}""{{/if}}>
+      value={{#if genre}}"{{genre.name}}"{{else}}""{{/if}}>
     {{#if errors.name}}
     <div class="invalid-feedback">{{errors.name.msg}}</div>
     {{/if}}

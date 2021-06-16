@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const Genre = require('../models/genre');
 const Book = require('../models/book');
 
+const genreValidation = body('name', 'Genre name required').trim().isLength({ min: 1 }).escape();
+
 // Display list of all Genres.
 exports.genreList = async (req, res, next) => {
   try {
@@ -37,7 +39,7 @@ exports.genreCreateGET = (req, res) => {
 
 // Handle Genre create on POST.
 exports.genreCreatePOST = [
-  body('name', 'Genre name required').trim().isLength({ min: 1 }).escape(),
+  genreValidation,
   async (req, res, next) => {
     try {
       const genre = new Genre({ name: req.body.name });
@@ -92,11 +94,47 @@ exports.genreDeletePOST = async (req, res, next) => {
 };
 
 // Display Genre update form on GET.
-exports.genreUpdateGET = (req, res) => {
-  res.send('NOT IMPLEMENTED: Genre update GET');
+exports.genreUpdateGET = async (req, res, next) => {
+  try {
+    const genre = await Genre.findById(req.params.id);
+    res.render('genreForm', { title: 'Update genre', genre });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // Handle Genre update on POST.
-exports.genreUpdatePOST = (req, res) => {
-  res.send('NOT IMPLEMENTED: Genre update POST');
-};
+exports.genreUpdatePOST = [
+  genreValidation,
+  createOrUpdateGenre
+];
+
+async function createOrUpdateGenre(req, res, next) {
+  try {
+    const genreProperties = { 
+      name: req.body.name 
+    }
+    if (req.params.id) {
+      genreProperties._id = req.params.id;
+    }
+    const genre = new Genre(genreProperties);
+    const validationErrors = validationResult(req);
+    if (!validationErrors.isEmpty()) {
+      res.render('genreForm', { title: 'Create Genre', genre, errors: validationErrors.mapped() });
+    } else {
+      const existingGenre = await Genre.findOne({ name: req.body.name });
+      if (existingGenre) {
+        res.redirect(existingGenre.url);
+      } else {
+        if (req.params.id) {
+          await Genre.findByIdAndUpdate(req.params.id, genre);
+        } else {
+          await genre.save();
+        }
+        res.redirect(genre.url);
+      }
+    }
+  } catch (err) {
+    next(err);
+  }
+}
