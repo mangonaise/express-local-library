@@ -5,7 +5,7 @@
     <label for="book">Book:</label>
     <select name="book" id="book" class="form-control">
       {{#each books}}
-        <option value={{this._id}} {{#if ../bookInstance}}{{#if (equal ../bookInstance.book this._id)}}selected{{/if}}{{/if}}>
+        <option value={{this._id}} {{#if ../bookInstance}}{{#if (equal ../bookInstance.book._id this._id)}}selected{{/if}}{{/if}}>
           {{this.title}}
         </option>
       {{/each}}
@@ -21,7 +21,7 @@
       name="imprint"
       placeholder="Imprint"
       class={{#if errors.imprint}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
-      value={{#if bookInstance}}{{bookInstance.imprint}}{{else}}""{{/if}}>
+      value={{#if bookInstance}}"{{bookInstance.imprint}}"{{else}}""{{/if}}>
     {{#if errors.imprint}}
     <div class="invalid-feedback">{{errors.imprint.msg}}</div>
     {{/if}}
@@ -38,18 +38,18 @@
     <div class="invalid-feedback">{{errors.status.msg}}</div>
     {{/if}}
 
-    <label for="dateOfBirth">Due date (if applicable):</label>
+    <label for="due">Due date (if applicable):</label>
     <input 
       type="date" 
-      id="dateOfBirth" 
-      name="dateOfBirth"
+      id="due" 
+      name="due"
       placeholder="mm/dd/yyyy"
-      class={{#if errors.dateOfBirth}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
-      value={{#if author}}{{author.dateOfBirth}}{{else}}""{{/if}}>
-    {{#if errors.dateOfBirth}}
-      <div class="invalid-feedback">{{errors.dateOfBirth.msg}}</div>
+      class={{#if errors.due}}"form-control is-invalid"{{else}}"form-control"{{/if}} 
+      value={{#if bookInstance}}{{#if bookInstance.due}}{{formatymd bookInstance.due}}{{/if}}{{else}}""{{/if}}>
+    {{#if errors.due}}
+      <div class="invalid-feedback">{{errors.due.msg}}</div>
     {{/if}}
 
-    <input type="submit" value="Create" class="btn btn-primary">
+    <input type="submit" value="Submit" class="btn btn-primary">
   </div>
 </form>

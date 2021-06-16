@@ -5,6 +5,13 @@ const BookInstance = require('../models/bookInstance');
 
 const statuses = ['maintenance', 'available', 'loaned', 'reserved'];
 
+const bookInstanceValidation = [
+  body('book', 'Book must be specified').trim().isLength({ min: 1 }).escape(),
+  body('imprint', 'Imprint required').trim().isLength({ min: 1 }).escape(),
+  body('status').isIn(['maintenance', 'available', 'loaned', 'reserved']),
+  body('due', 'Invalid date').optional({ checkFalsy: true }).isISO8601().toDate(),
+]
+
 // Display list of all BookInstances.
 exports.bookInstanceList = async (req, res) => {
   try {
@@ -43,31 +50,8 @@ exports.bookInstanceCreateGET = async (req, res, next) => {
 
 // Handle BookInstance create on POST.
 exports.bookInstanceCreatePOST = [
-  body('book', 'Book must be specified').trim().isLength({ min: 1 }).escape(),
-  body('imprint', 'Imprint required').trim().isLength({ min: 1 }).escape(),
-  body('status').isIn(['maintenance', 'available', 'loaned', 'reserved']),
-  body('due', 'Invalid date').optional({ checkFalsy: true }).isISO8601().toDate(),
-
-  async (req, res, next) => {
-    try {
-      const errors = validationResult(req);
-      const bookInstance = new BookInstance({
-        book: req.body.book,
-        imprint: req.body.imprint,
-        status: req.body.status,
-        due: req.body.due
-      });
-      if (!errors.isEmpty()) {
-        const books = await Book.find({}, 'title');
-        res.render('bookInstanceForm', { title: 'Create Book Instance', bookInstance, books, statuses, errors: errors.mapped() });
-      } else {
-        await bookInstance.save();
-        res.redirect(bookInstance.url);
-      }
-    } catch (err) {
-      next(err);
-    }
-  }
+  ...bookInstanceValidation,
+  createOrUpdateBookInstance
 ];
 
 // Display BookInstance delete form on GET.
@@ -91,11 +75,49 @@ exports.bookInstanceDeletePOST = async (req, res, next) => {
 };
 
 // Display BookInstance update form on GET.
-exports.bookInstanceUpdateGET = (req, res) => {
-  res.send('NOT IMPLEMENTED: BookInstance update GET');
+exports.bookInstanceUpdateGET = async (req, res, next) => {
+  try {
+    const [books, bookInstance] = await Promise.all([
+      Book.find({}, 'title'),
+      BookInstance.findById(req.params.id).populate('book')
+    ]);
+    res.render('bookInstanceForm', { title: 'Update Book Instance', bookInstance, books, statuses });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // Handle bookInstance update on POST.
-exports.bookInstanceUpdatePOST = (req, res) => {
-  res.send('NOT IMPLEMENTED: BookInstance update POST');
-};
+exports.bookInstanceUpdatePOST = [
+  ...bookInstanceValidation,
+  createOrUpdateBookInstance
+];
+
+async function createOrUpdateBookInstance(req, res, next) {
+  try {
+    const errors = validationResult(req);
+    const bookInstanceProperties = {
+      book: req.body.book,
+      imprint: req.body.imprint,
+      status: req.body.status,
+      due: req.body.due
+    }
+    if (req.params.id) {
+      bookInstanceProperties._id = req.params.id;
+    }
+    const bookInstance = new BookInstance(bookInstanceProperties);
+    if (!errors.isEmpty()) {
+      const books = await Book.find({}, 'title');
+      res.render('bookInstanceForm', { title: 'Create Book Instance', bookInstance, books, statuses, errors: errors.mapped() });
+    } else {
+      if (req.params.id) {
+        await BookInstance.findByIdAndUpdate(req.params.id, bookInstance);
+      } else {
+        await bookInstance.save();
+      }
+      res.redirect(bookInstance.url);
+    }
+  } catch (err) {
+    next(err);
+  }
+}

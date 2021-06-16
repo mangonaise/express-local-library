@@ -53,6 +53,7 @@ handlebars.registerHelper('equal', function () {
   return args.every(expression => args[0].toString() === expression.toString());
 });
 handlebars.registerHelper('format', date => format(new Date(date), 'MMM dd, yyyy'));
+handlebars.registerHelper('formatymd', date => format(new Date(date), 'yyyy-MM-dd'));
 handlebars.registerHelper('concat', (...args) => args.slice(0, -1).join(''));
 
 module.exports = app;
